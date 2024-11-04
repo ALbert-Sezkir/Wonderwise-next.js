@@ -40,6 +40,7 @@
 // export default AccommodationsList;
 
 // file: app/components/AccommodationsList.tsx
+// file: app/components/AccommodationsList.tsx
 'use client'
 
 import { useEffect, useState } from 'react';

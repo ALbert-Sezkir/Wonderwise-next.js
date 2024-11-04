@@ -1,16 +1,20 @@
 // file: utils/fetchAccommodations.tsx
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebaseConfig";
-import { ListingCardProps } from "../app/components/ListingCard";
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '@/firebaseConfig';
+import { Accommodation } from '@/types/package';
 
-const fetchAccommodations = async (): Promise<ListingCardProps[]> => {
-  const accommodationsCollection = collection(db, "accommodations");
-  const accommodationsSnapshot = await getDocs(accommodationsCollection);
-  const accommodationsList = accommodationsSnapshot.docs.map(doc => ({
-    id: doc.id, // Use document ID
-    ...doc.data()
-  })) as ListingCardProps[];
-  return accommodationsList;
+const fetchAccommodations = async (): Promise<Accommodation[]> => {
+  const querySnapshot = await getDocs(collection(db, 'accommodations'));
+  return querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    rooms: doc.data().rooms || 0,
+    guests: doc.data().guests || 0,
+    price: doc.data().price || 0,
+    name: doc.data().name || '',
+    city: doc.data().city || '',
+    description: doc.data().description || '',
+    images: doc.data().images || [],
+  }));
 };
 
 export default fetchAccommodations;

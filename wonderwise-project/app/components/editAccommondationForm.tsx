@@ -1,6 +1,3 @@
-// file: app/components/editAccommondationForm.tsx
-'use client'
-
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { doc, getDoc, setDoc } from "firebase/firestore";
@@ -16,6 +13,7 @@ const EditForm = () => {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [guests, setGuests] = useState('');
+  const [rooms, setRooms] = useState(''); // Ensure rooms is initialized with an empty string
   const [images, setImages] = useState('');
 
   useEffect(() => {
@@ -30,7 +28,8 @@ const EditForm = () => {
           setDescription(data.description);
           setPrice(data.price);
           setGuests(data.guests);
-          setImages(data.images.join(', '));
+          setRooms(data.rooms || ''); // Ensure rooms is not undefined
+          setImages(data.images || []);
         }
       }
     };
@@ -46,26 +45,28 @@ const EditForm = () => {
       description,
       price: Number(price),
       guests: Number(guests),
-      images: images.split(',').map(image => image.trim())
+      rooms: Number(rooms), // Ensure rooms is included
+      images
     };
     try {
       await setDoc(doc(db, "accommodations", id as string), updatedListing);
       console.log("Listing updated:", updatedListing);
-      router.push('/');
+      router.push('/admin');
     } catch (error) {
       console.error("Error updating listing: ", error);
     }
   };
 
   return (
-    <div>
-      <h1>Edit Accommodation Listing</h1>
-      <form onSubmit={handleSubmit}>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Edit Accommodation Listing</h1>
+      <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded-lg shadow-md bg-white">
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Name"
+          className="w-full p-2 border rounded"
           required
         />
         <input
@@ -73,19 +74,14 @@ const EditForm = () => {
           value={city}
           onChange={(e) => setCity(e.target.value)}
           placeholder="City"
+          className="w-full p-2 border rounded"
           required
         />
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           placeholder="Description"
-          required
-        />
-        <input
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          placeholder="Price"
+          className="w-full p-2 border rounded"
           required
         />
         <input
@@ -93,16 +89,36 @@ const EditForm = () => {
           value={guests}
           onChange={(e) => setGuests(e.target.value)}
           placeholder="Guests"
+          className="w-full p-2 border rounded"
+          required
+        />
+        <input
+          type="number"
+          value={rooms}
+          onChange={(e) => setRooms(e.target.value)}
+          placeholder="Rooms"
+          className="w-full p-2 border rounded"
+          required
+        />
+        <input
+          type="number"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          placeholder="Price"
+          className="w-full p-2 border rounded"
           required
         />
         <input
           type="text"
           value={images}
           onChange={(e) => setImages(e.target.value)}
-          placeholder="Images (comma separated URLs)"
+          placeholder="Images"
+          className="w-full p-2 border rounded"
           required
         />
-        <button type="submit">Update Listing</button>
+        <button type="submit" className="w-full p-2 bg-blue-500 text-white rounded">
+          Update Listing
+        </button>
       </form>
     </div>
   );

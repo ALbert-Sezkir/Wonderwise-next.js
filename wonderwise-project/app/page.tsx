@@ -17,12 +17,16 @@
 'use client'
 
 import AccommodationsList from "./components/AccommodationsList";
+import Search from "./components/Search";
+
 
 
 const HomePage = () => {
   return (
     <div className="p-4">
+      <Search />
       <AccommodationsList showEditButton={false} />
+      
     </div>
   );
 };
