@@ -13,7 +13,7 @@ import { useAuth } from '@/app/context/AuthContext';
 const AdminProfilePage = () => {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [profilePic, setProfilePic] = useState(user?.photoURL || '/default-profile.png');
+  const [profilePic, setProfilePic] = useState(user?.photoURL || '/images/No_image.jpg');
   const [name, setName] = useState(user?.displayName || '');
   const [info, setInfo] = useState('');
   const [location, setLocation] = useState('');
@@ -29,7 +29,7 @@ const AdminProfilePage = () => {
         if (userDoc.exists()) {
           const data = userDoc.data();
           setName(data.displayName || '');
-          setProfilePic(data.photoURL || '/default-profile.png');
+          setProfilePic(data.photoURL || '/images/No_image.jpg');
           setInfo(data.info || '');
           setLocation(data.location || '');
           setEmail(data.email || '');
@@ -44,7 +44,7 @@ const AdminProfilePage = () => {
   const handleProfilePicChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0] && user) {
       const file = e.target.files[0];
-      const storageRef = ref(storage, `profile-pictures/${user.uid}/${file.name}`);
+      const storageRef = ref(storage, `images/${user.uid}/${file.name}`);
       setIsUploading(true);
       try {
         await uploadBytes(storageRef, file);
@@ -99,7 +99,7 @@ const AdminProfilePage = () => {
           <input
             id="profilePicInput"
             type="file"
-            accept="image/*"
+            accept="images/*"
             className="hidden"
             onChange={handleProfilePicChange}
           />

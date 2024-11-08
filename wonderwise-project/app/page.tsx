@@ -25,8 +25,7 @@ const HomePage = () => {
   return (
     <div className="p-4">
       <Search />
-      <AccommodationsList showEditButton={false} />
-      
+      <AccommodationsList  />
     </div>
   );
 };

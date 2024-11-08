@@ -14,7 +14,8 @@ const fetchAccommodations = async (): Promise<Accommodation[]> => {
     city: doc.data().city || '',
     description: doc.data().description || '',
     images: doc.data().images || [],
-  }));
+    userId: doc.data().userId,
+  })) as Accommodation[];
 };
 
 export default fetchAccommodations;

@@ -2,7 +2,7 @@
 import { collection, addDoc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import accommodations from "./accommodationsData";
-import { ListingCardProps } from "../app/components/ListingCard";
+
 
 const addAccommodationsToFirestore = async () => {
   const accommodationsCollection = collection(db, "accommodations");

@@ -39,7 +39,7 @@ const ProfilePage = () => {
           <Image
             width={200}
             height={200}
-            src={profileData.photoURL || '/default-profile.png'}
+            src={profileData.photoURL || '/images/No_image.jpg'}
             alt="Profile"
             className="w-32 h-32 md:w-48 md:h-48 rounded-full object-cover border-4 border-[#344E41]"
           />

@@ -112,7 +112,7 @@ const EditForm = () => {
           type="text"
           value={images}
           onChange={(e) => setImages(e.target.value)}
-          placeholder="Images"
+          placeholder="images"
           className="w-full p-2 border rounded"
           required
         />

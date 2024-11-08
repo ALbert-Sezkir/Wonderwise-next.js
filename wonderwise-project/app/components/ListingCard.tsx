@@ -11,6 +11,7 @@ export interface ListingCardProps {
   rooms: number;
   images: string[];
   showEditButton?: boolean;
+ 
 }
 
 const ListingCard: React.FC<ListingCardProps> = ({ id, name, city, description, price, guests, rooms, images, showEditButton = false }) => {
@@ -54,3 +55,4 @@ const ListingCard: React.FC<ListingCardProps> = ({ id, name, city, description, 
 };
 
 export default ListingCard;
+
