@@ -41,10 +41,10 @@ const ListingCard: React.FC<ListingCardProps> = ({ id, name, city, description, 
         <h2 className="font-bold text-2xl font-livvic">{name}</h2>
         <p className="text-gray-600 text-xl font-livvic">{city}</p>
         <p className="text-gray-800 text-xl  mt-2 font-livvic">{description}</p>
+        {category && <p className="text-gray-800 text-xl  mt-2 font-livvic">Category: {category}</p>}
         <p className="text-gray-800 text-xl  mt-2 font-livvic">Guests: {guests}</p>
         <p className="text-gray-800 text-xl  mt-2 font-livvic">Rooms: {rooms}</p>
         <p className="text-gray-800 text-xl  mt-2 font-livvic">Price: ${price}</p>
-        {category && <p className="text-gray-800 text-xl  mt-2 font-livvic">Category: {category}</p>}
         {showEditButton && (
           <button onClick={handleEdit} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded font-livvic">
             Edit

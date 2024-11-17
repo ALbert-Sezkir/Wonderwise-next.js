@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { doc, getDoc, deleteDoc, addDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { db} from '@/firebaseConfig';
+import { db } from '@/firebaseConfig';
 // import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { MdOutlineWifiOff } from 'react-icons/md';
 import { FaTree } from 'react-icons/fa';
@@ -26,7 +26,6 @@ interface Listing {
   description: string;
   guests: number;
   rooms: number;
-  category?: string;
   userId: string;
 }
 
@@ -51,7 +50,6 @@ const DetailPage = () => {
   const [price, setPrice] = useState(''); // State for the listing price
   // const [guests, setGuests] = useState(''); // State for the number of guests
   // const [rooms, setRooms] = useState(''); // State for the number of rooms
-  const [category, setCategory] = useState<string | null>(null); // State for the listing category
   // const [images, setImages] = useState<string[]>([]); // State for the listing images
   const [newImages, setNewImages] = useState<File[]>([]); // State for new images to be uploaded
   const [previewImages, setPreviewImages] = useState<string[]>([]); // State for preview images
@@ -77,7 +75,6 @@ const DetailPage = () => {
           setPrice(data.price.toString());
           // setGuests(data.guests.toString());
           // setRooms(data.rooms.toString());
-          setCategory(data.category || null);
           // setImages(data.images);
         }
       }
@@ -241,7 +238,6 @@ const DetailPage = () => {
         ) : (
           <p className="text-xl font-bold font-livvic mb-4">Price: ${listing.price}</p>
         )}
-        {category && <p className="text-xl font-bold font-livvic mb-4">Category: {category}</p>}
       </div>
 
       {/* Description and Icons Section */}

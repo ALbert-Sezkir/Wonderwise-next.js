@@ -17,7 +17,7 @@ const Searchbar: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center w-full mb-4">
+    <div className="flex justify-center w-full mb-4">
       <div className="relative w-[300px]">
         <input
           type="text"

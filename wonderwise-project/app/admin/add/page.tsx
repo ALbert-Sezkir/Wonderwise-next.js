@@ -9,6 +9,9 @@ import { useAuth } from '../../context/AuthContext';
 import Image from 'next/image';
 import { MdClose } from 'react-icons/md';
 import crypto from 'crypto';
+import toast, { Toaster } from 'react-hot-toast';
+import { categories } from '../../components/Categories';
+import CategoryModal from '../../components/CategoryModal'; // Import CategoryModal
 
 const AddAccommodation = () => {
   const router = useRouter();
@@ -19,15 +22,20 @@ const AddAccommodation = () => {
   const [price, setPrice] = useState('');
   const [guests, setGuests] = useState('');
   const [rooms, setRooms] = useState('');
+  const [category, setCategory] = useState(null); // Update state for category
+  const [isCategoryModalOpen, setCategoryModalOpen] = useState(false); // State for category modal
 
   const [newImages, setNewImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
+      if (filesArray.length + newImages.length > 3) {
+        toast.error('You can only upload 3 images.');
+        return;
+      }
       setNewImages([...newImages, ...filesArray]);
       const previewUrls = filesArray.map((file) => URL.createObjectURL(file));
       setPreviewImages([...previewImages, ...previewUrls]);
@@ -73,7 +81,11 @@ const AddAccommodation = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null); // Reset error state
+    toast.dismiss(); // Reset toast state
+    if (newImages.length !== 3) {
+      toast.error('You must upload exactly 3 images.');
+      return;
+    }
     setIsUploading(true);
     try {
       const uploadedImageUrls = await Promise.all(
@@ -95,15 +107,24 @@ const AddAccommodation = () => {
         price: Number(price),
         guests: Number(guests),
         rooms: Number(rooms),
+        category: category?.label, // Include category in the new listing
         images: uploadedImageUrls
       };
       await addDoc(collection(db, 'accommodations'), newListing);
       router.push('/admin');
     } catch (error) {
       console.error('Error adding new listing:', error);
-      setError('Error adding new listing. Please try again.');
+      toast.error('Error adding new listing. Please try again.');
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    const lines = value.split('\n');
+    if (value.length <= 310 && lines.length <= 4) {
+      setDescription(value);
     }
   };
 
@@ -111,7 +132,7 @@ const AddAccommodation = () => {
     <div className="flex justify-center items-center min-h-screen p-4">
       <div className="w-full max-w-2xl">
         <h1 className="text-2xl font-bold mb-4 text-center">Add New Accommodation Listing</h1>
-        {error && <p className="text-red-500 text-center">{error}</p>}
+        <Toaster />
         <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded-lg shadow-md bg-white">
           <input
             type="text"
@@ -129,13 +150,28 @@ const AddAccommodation = () => {
             className="w-full p-2 border rounded"
             required
           />
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Description"
-            className="w-full p-2 h-44 border rounded"
-            required
-          />
+          <div className="relative">
+            <textarea
+              value={description}
+              onChange={handleDescriptionChange}
+              placeholder="Description"
+              className="w-full p-2 h-44 border rounded"
+              required
+            />
+            <div className="absolute bottom-2 right-2 text-gray-500 text-sm">
+              {description.length}/310
+            </div>
+          </div>
+          {/* Category */}
+          <div>
+            <label className="font-livvic">Category</label>
+            <div
+              onClick={() => setCategoryModalOpen(true)}
+              className="p-2 border rounded cursor-pointer"
+            >
+              {category ? category.label : "Choose a category"}
+            </div>
+          </div>
           <input
             type="number"
             value={guests}
@@ -181,6 +217,17 @@ const AddAccommodation = () => {
             </button>
           </div>
         </form>
+        {/* Category Modal */}
+        {isCategoryModalOpen && (
+          <CategoryModal
+            categories={categories}
+            onSelectCategory={(category) => {
+              setCategory(category);
+              setCategoryModalOpen(false);
+            }}
+            onClose={() => setCategoryModalOpen(false)}
+          />
+        )}
       </div>
     </div>
   );

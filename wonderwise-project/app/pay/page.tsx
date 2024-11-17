@@ -30,9 +30,9 @@ const PaymentPage = () => {
   const guestCountParam = searchParams.get('guestCount');
   
   const [listing, setListing] = useState<Listing | null>(null);
-  const [guestCount, setGuestCount] = useState(guestCountParam ? parseInt(guestCountParam) : 1);
-  const [startDate, setStartDate] = useState<Date | null>(startDateParam ? parseISO(startDateParam) : null);
-  const [endDate, setEndDate] = useState<Date | null>(endDateParam ? parseISO(endDateParam) : null);
+  const [guestCount] = useState(guestCountParam ? parseInt(guestCountParam) : 1);
+  const [startDate] = useState<Date | null>(startDateParam ? parseISO(startDateParam) : null);
+  const [endDate] = useState<Date | null>(endDateParam ? parseISO(endDateParam) : null);
   const [showDebitCard, setShowDebitCard] = useState(false);
   const [selectedCard, setSelectedCard] = useState('mastercard');
 

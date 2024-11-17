@@ -1,6 +1,4 @@
 'use client'
-'use client '
-
 
 import { useState } from "react";
 import Image from "next/image";
@@ -51,13 +49,15 @@ const Navbar = () => {
         </Link>
         <div className="relative">
           <button onClick={toggleMenu} className="focus:outline-none">
-            <Image
-              src={user?.photoURL || "/images/placeholder.jpg"}
-              alt="Profile"
-              width={40}
-              height={40}
-              className="object-cover rounded-full"
-            />
+            <div className="w-16 h-16 rounded-full overflow-hidden">
+              <Image
+                src={user?.photoURL || "/images/placeholder.jpg"}
+                alt="Profile"
+                width={64}
+                height={64}
+                className="object-cover w-full h-full"
+              />
+            </div>
           </button>
           {isOpen && (
             <div className="absolute right-1/2 transform translate-x-1/2 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
@@ -72,7 +72,7 @@ const Navbar = () => {
                   </Link>
 
                   <Link href="/admin">
-                    <div className="block px-4 py-2 text-gray-800 font-livvic hover:bg-gray-200">Admin Dashboard</div>
+                    <div className="block px-4 py-2 text-gray-800 font-livvic hover:bg-gray-200">My WonderWise</div>
                   </Link>
                   <div
                     onClick={handleLogout}

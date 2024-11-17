@@ -14,7 +14,7 @@ interface SearchParams {
   guests: number;
   maxPrice: string;
   dateRange: DateRange[];
-  searchTerm: string; // Add searchTerm to SearchParams
+  searchTerm: string;
 }
 
 interface SearchContextProps {
@@ -22,7 +22,7 @@ interface SearchContextProps {
   setSearchParams: (params: SearchParams) => void;
   isSearchActive: boolean;
   setIsSearchActive: (active: boolean) => void;
-  setSearchTerm: (term: string) => void; // Add setSearchTerm function
+  setSearchTerm: (term: string) => void;
 }
 
 const SearchContext = createContext<SearchContextProps | undefined>(undefined);
@@ -44,7 +44,7 @@ export const SearchProvider: React.FC<SearchProviderProps> = ({ children }) => {
         key: "selection",
       },
     ],
-    searchTerm: "", // Initialize searchTerm
+    searchTerm: "",
   });
   const [isSearchActive, setIsSearchActive] = useState(false);
 
@@ -62,7 +62,7 @@ export const SearchProvider: React.FC<SearchProviderProps> = ({ children }) => {
         setSearchParams,
         isSearchActive,
         setIsSearchActive,
-        setSearchTerm, // Provide setSearchTerm function
+        setSearchTerm,
       }}
     >
       {children}

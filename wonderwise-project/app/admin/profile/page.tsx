@@ -1,4 +1,3 @@
-
 'use client'
 
 import React, { useEffect, useState } from 'react';
@@ -9,6 +8,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { storage, db } from '@/firebaseConfig';
 import { useAuth } from '@/app/context/AuthContext';
+import toast, { Toaster } from 'react-hot-toast';
 
 const AdminProfilePage = () => {
   const { user } = useAuth();
@@ -19,6 +19,7 @@ const AdminProfilePage = () => {
   const [location, setLocation] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -71,6 +72,7 @@ const AdminProfilePage = () => {
         email,
         phone,
       }, { merge: true });
+      toast.success('Profile successfully saved');
     }
     setIsEditing(false);
   };
@@ -103,6 +105,7 @@ const AdminProfilePage = () => {
             onChange={handleProfilePicChange}
           />
         </div>
+        {isUploading && <p>Uploading...</p>}
         <div className="w-full bg-[#344E41] p-8 rounded-md text-white">
           {isEditing ? (
             <div className="flex flex-col gap-4">
@@ -146,7 +149,7 @@ const AdminProfilePage = () => {
               </button>
             </div>
           ) : (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 font-livvic">
               <p>{name}</p>
               <p>{info}</p>
               <p>{location}</p>
@@ -155,10 +158,14 @@ const AdminProfilePage = () => {
               <button onClick={handleEditToggle} className="p-2 bg-blue-500 rounded-md">
                 Edit Profile
               </button>
+              <button onClick={handleSave} className="p-2 bg-green-500 rounded-md mt-2">
+                Save Profile
+              </button>
             </div>
           )}
         </div>
       </div>
+      <Toaster />
     </div>
   );
 };

@@ -7,6 +7,7 @@ import { db } from '@/firebaseConfig';
 import ListingCard from '@/app/components/ListingCard';
 import { useAuth } from '../context/AuthContext';
 
+
 const AdminPage = () => {
   const router = useRouter();
   const { user, loading } = useAuth(); // Get the logged-in user and loading state
@@ -50,7 +51,7 @@ const AdminPage = () => {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-4">My WonderWise Dashboard</h1>
       <div className="flex space-x-4 mb-4">
         <button onClick={() => router.push('/admin/add')} className="p-2 bg-green-500 text-white rounded">
           Add New Listing

@@ -18,7 +18,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
   const { setSearchParams, setIsSearchActive } = useSearch();
   const [destination, setDestination] = useState("");
   const [category, setCategory] = useState<{ label: string } | null>(null);
-  const [guests, setGuests] = useState(1);
+  const [guests, setGuests] = useState<number | string>(1);
   const [maxPrice, setMaxPrice] = useState("");
   const [dateRange, setDateRange] = useState([
     {
@@ -30,10 +30,17 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
   const [isCategoryModalOpen, setCategoryModalOpen] = useState(false);
 
   const handleSearch = () => {
+    console.log("Search button clicked");
+    console.log("Destination:", destination);
+    console.log("Category:", category);
+    console.log("Guests:", guests);
+    console.log("Max Price:", maxPrice);
+    console.log("Date Range:", dateRange);
+
     setSearchParams({
       destination,
       category: category ? category.label : null,
-      guests,
+      guests: typeof guests === 'number' ? guests : parseInt(guests) || 1,
       maxPrice,
       dateRange,
     });
@@ -58,14 +65,16 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-      <div className="bg-timberwolf p-6 rounded-lg max-w-[730px] w-full max-h-[90vh] overflow-y-auto ">
-        <button onClick={onClose} className="relative left-[650px] mb-4s">
-          <CircleX color="var(--brunswickgreen)" size={30} className="" />
-        </button>
-        <h2 className="text-xl font-medium mb-4 font-livvic ">
-          Where are we headed?
-        </h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto ">
+      <div className="bg-timberwolf p-6 mb-16 rounded-lg max-w-[730px] w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-medium font-livvic">
+            Where are we headed?
+          </h2>
+          <button onClick={onClose} className="sm:relative sm:left-0 sm:mb-0">
+            <CircleX color="var(--brunswickgreen)" size={30} className="" />
+          </button>
+        </div>
 
         <div className="flex flex-col gap-4">
           {/* Destination */}
@@ -98,7 +107,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
               type="number"
               min="1"
               value={guests}
-              onChange={(e) => setGuests(parseInt(e.target.value))}
+              onChange={(e) => setGuests(e.target.value ? parseInt(e.target.value) : '')}
               className="w-full p-2 border rounded"
             />
           </div>

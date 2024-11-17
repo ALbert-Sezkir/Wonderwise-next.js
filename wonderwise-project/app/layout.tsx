@@ -6,6 +6,7 @@ import NavbarSmall from './components/NavbarSmall';
 import { AuthProvider } from './context/AuthContext';
 import { Livvic } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
+import { SearchProvider } from './context/SearchContext';
 
 
 const livvic = Livvic({
@@ -30,7 +31,7 @@ export default function RootLayout({
         className={`${livvic.variable} antialiased flex flex-col min-h-screen`}
       >
         <AuthProvider>
-          
+        <SearchProvider>
             <Toaster />
             <div className="hidden sm:block">
               <Navbar />
@@ -45,7 +46,7 @@ export default function RootLayout({
             <div className="block sm:hidden">
               <NavbarSmall />
             </div>
-          
+            </SearchProvider>
         </AuthProvider>
       </body>
     </html>
