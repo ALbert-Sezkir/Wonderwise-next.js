@@ -1,4 +1,4 @@
-// file: app/admin/profile/page.tsx
+
 'use client'
 
 import React, { useEffect, useState } from 'react';
@@ -19,7 +19,6 @@ const AdminProfilePage = () => {
   const [location, setLocation] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -53,7 +52,7 @@ const AdminProfilePage = () => {
         await firebaseUpdateProfile(user, { photoURL: downloadURL });
         setIsUploading(false);
       } catch (error) {
-        console.error("Error uploading file:", error);
+        console.error('Failed to upload Picture', error);
         setIsUploading(false);
       }
     }

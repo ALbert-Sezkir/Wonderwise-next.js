@@ -64,14 +64,19 @@ const Navbar = () => {
               {user ? (
                 <>
                   <Link href="/profile">
-                    <div className="block px-4 py-2 text-gray-800 hover:bg-gray-200">Profile</div>
+                    <div className="block px-4 py-2 text-gray-800 font-livvic hover:bg-gray-200">Profile</div>
                   </Link>
-                  <Link href="/reservations">
-                    <div className="block px-4 py-2 text-gray-800 hover:bg-gray-200">My Reservations</div>
+
+                  <Link href="/my-reservations">
+                    <div className="block px-4 py-2 text-gray-800 font-livvic hover:bg-gray-200">My Reservations</div>
+                  </Link>
+
+                  <Link href="/admin">
+                    <div className="block px-4 py-2 text-gray-800 font-livvic hover:bg-gray-200">Admin Dashboard</div>
                   </Link>
                   <div
                     onClick={handleLogout}
-                    className="block px-4 py-2 text-gray-800 hover:bg-gray-200 cursor-pointer"
+                    className="block px-4 py-2 text-gray-800 font-livvic hover:bg-gray-200 cursor-pointer"
                   >
                     Logout
                   </div>
@@ -79,10 +84,10 @@ const Navbar = () => {
               ) : (
                 <>
                   <Link href="/login">
-                    <div className="block px-4 py-2 text-gray-800 hover:bg-gray-200">Log in</div>
+                    <div className="block px-4 py-2 text-gray-800 font-livvic hover:bg-gray-200">Log in</div>
                   </Link>
                   <Link href="/register">
-                    <div className="block px-4 py-2 text-gray-800 hover:bg-gray-200">Register</div>
+                    <div className="block px-4 py-2 text-gray-800 font-livvic hover:bg-gray-200">Register</div>
                   </Link>
                 </>
               )}

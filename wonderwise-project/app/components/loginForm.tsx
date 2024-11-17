@@ -6,6 +6,7 @@ import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopu
 import { auth } from '../../firebaseConfig';
 import { FcGoogle } from 'react-icons/fc';
 import Link from 'next/link';
+import { toast } from 'react-hot-toast';
 
 const SignInForm = () => {
   const [email, setEmail] = useState('');
@@ -20,6 +21,7 @@ const SignInForm = () => {
       router.push('/'); // Redirect to the landing page
     } catch (error) {
       console.error("Error signing in with email:", error);
+      toast.error('Invalid email or password. Please try again.');
     }
   };
 
@@ -31,6 +33,8 @@ const SignInForm = () => {
       router.push('/'); // Redirect to the landing page
     } catch (error) {
       console.error("Error signing in with Google:", error);
+      toast.error('Failed to sign in with Google. Please try again.');
+      
     }
   };
 

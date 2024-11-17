@@ -41,10 +41,10 @@ const ProfilePage = () => {
             height={200}
             src={profileData.photoURL || '/images/No_image.jpg'}
             alt="Profile"
-            className="w-32 h-32 md:w-48 md:h-48 rounded-full object-cover border-4 border-[#344E41]"
+            className="w-64 h-64 md:w-72 md:h-72 rounded-full object-cover border-4 border-[#344E41]"
           />
         </div>
-        <div className="w-full bg-[#344E41] p-8 rounded-md text-white">
+        <div className="w-full bg-[#344E41] p-8 rounded-md text-white text-xl font-livvic">
           <div className="flex flex-col gap-4">
             <p>{profileData.displayName}</p>
             <p>{profileData.info}</p>

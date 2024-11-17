@@ -1,4 +1,3 @@
-// file: utils/fetchAccommodations.tsx
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
 import { Accommodation } from '@/types/package';
@@ -15,6 +14,7 @@ const fetchAccommodations = async (): Promise<Accommodation[]> => {
     description: doc.data().description || '',
     images: doc.data().images || [],
     userId: doc.data().userId,
+    category: doc.data().category || '', // Include category field
   })) as Accommodation[];
 };
 

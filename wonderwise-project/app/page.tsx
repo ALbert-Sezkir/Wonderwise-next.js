@@ -1,32 +1,22 @@
-// file: app/page.tsx
-// import React from 'react';
-// import AccommodationsList from './components/AccommodationsList';
-
-// const HomePage = () => {
-//   return (
-//     <div className="container mx-auto px-4 py-8">
-//       <h1 className="text-3xl font-bold mb-8">Available Listings</h1>
-//       <AccommodationsList />
-//     </div>
-//   );
-// };
-
-// export default HomePage;
-
-// file: app/page.tsx
 'use client'
 
-import AccommodationsList from "./components/AccommodationsList";
-import Search from "./components/Search";
-
-
+import React from 'react';
+import Searchbar from './components/Searchbar';
+import AccommodationsList from './components/AccommodationsList';
+import { SearchProvider } from './context/SearchContext';
 
 const HomePage = () => {
   return (
-    <div className="p-4">
-      <Search />
-      <AccommodationsList  />
-    </div>
+    <SearchProvider>
+      <div className="p-4 flex flex-col items-center justify-center min-h-screen pb-20">
+        <div className="w-full flex flex-col items-center">
+          <Searchbar />
+          <div className="w-4/5 mt-4">
+            <AccommodationsList />
+          </div>
+        </div>
+      </div>
+    </SearchProvider>
   );
 };
 

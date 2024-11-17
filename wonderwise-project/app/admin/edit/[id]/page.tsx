@@ -7,6 +7,7 @@ import { db, storage } from '@/firebaseConfig';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '@/app/context/AuthContext';
 import Image from 'next/image';
+import { MdClose } from 'react-icons/md';
 
 const EditAccommodation = () => {
   const router = useRouter();
@@ -21,12 +22,13 @@ const EditAccommodation = () => {
   const [images, setImages] = useState<string[]>([]);
   const [newImages, setNewImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [userId, setUserId] = useState<string | null>(null); // Add state for userId
 
   useEffect(() => {
     const fetchAccommodation = async () => {
       if (id) {
         try {
-          const docRef = doc(db, 'accommodations', id);
+          const docRef = doc(db, 'accommodations', id as string);
           const docSnap = await getDoc(docRef);
           if (docSnap.exists()) {
             const data = docSnap.data();
@@ -37,6 +39,7 @@ const EditAccommodation = () => {
             setGuests(data?.guests?.toString() || '');
             setRooms(data?.rooms?.toString() || '');
             setImages(data?.images || []);
+            setUserId(data?.userId || null); // Set userId from the fetched data
           }
         } catch (error) {
           console.error('Error fetching accommodation:', error);
@@ -46,11 +49,6 @@ const EditAccommodation = () => {
     fetchAccommodation();
   }, [id]);
 
-  const handleImageChange = (index: number, value: string) => {
-    const updatedImages = [...images];
-    updatedImages[index] = value;
-    setImages(updatedImages);
-  };
 
   const handleRemoveImage = (index: number) => {
     const updatedImages = images.filter((_, i) => i !== index);
@@ -84,21 +82,24 @@ const EditAccommodation = () => {
         guests: Number(guests),
         rooms: Number(rooms),
         images: [...images, ...uploadedImageUrls],
+        userId: userId || user?.uid, // Ensure userId is included
       };
       if (id) {
-        await setDoc(doc(db, 'accommodations', id), updatedListing);
+        if (typeof id === 'string') {
+          await setDoc(doc(db, 'accommodations', id), updatedListing);
+        }
       }
-      router.push('/');
+      router.push('/admin');
     } catch (error) {
       console.error('Error updating listing:', error);
     }
   };
 
   const handleDelete = async () => {
-    if (id) {
+    if (typeof id === 'string') {
       try {
         await deleteDoc(doc(db, 'accommodations', id));
-        router.push('/');
+        router.push('/admin');
       } catch (error) {
         console.error('Error deleting listing: ', error);
       }
@@ -132,7 +133,7 @@ const EditAccommodation = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Description"
-            className="w-full p-2 border rounded"
+            className="w-full p-2 h-44 border rounded"
             required
           />
           <input
@@ -161,29 +162,33 @@ const EditAccommodation = () => {
           />
           <div className="space-y-2">
             <h3 className="font-semibold">Images</h3>
-            {images.map((image, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <input
-                  type="text"
-                  value={image}
-                  onChange={(e) => handleImageChange(index, e.target.value)}
-                  placeholder={`Image URL ${index + 1}`}
-                  className="flex-grow p-2 border rounded text-black"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveImage(index)}
-                  className="p-2 bg-red-500 text-white rounded"
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
+            <div className="flex flex-wrap gap-2">
+              {images.map((image, index) => (
+                <div key={index} className="relative">
+                  <Image src={image} alt={`Image ${index + 1}`} width={96} height={96} className="w-28 h-28 object-cover rounded" />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full"
+                  >
+                    <MdClose size={20} />
+                  </button>
+                </div>
+              ))}
+            </div>
             <input type="file" multiple onChange={handleFileChange} className="mt-2" />
             <div className="flex flex-wrap gap-2 mt-2">
               {previewImages.map((src, index) => (
-                <Image key={index} src={src} alt={`Preview ${index + 1}`} width={96} height={96} className="w-24 h-24 object-cover rounded" />
+                <div key={index} className="relative">
+                  <Image src={src} alt={`Preview ${index + 1}`} width={96} height={96} className="w-24 h-24 object-cover rounded" />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(index)}
+                    className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full"
+                  >
+                    <MdClose size={20} />
+                  </button>
+                </div>
               ))}
             </div>
           </div>

@@ -2,19 +2,22 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
-import { db, storage } from '@/firebaseConfig';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { doc, getDoc, deleteDoc, addDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { db} from '@/firebaseConfig';
+// import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { MdOutlineWifiOff } from 'react-icons/md';
 import { FaTree } from 'react-icons/fa';
 import { TbAirConditioning } from 'react-icons/tb';
 import { LuBedSingle, LuBedDouble } from 'react-icons/lu';
 import Image from 'next/image';
 import { useAuth } from '@/app/context/AuthContext';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import { differenceInDays } from 'date-fns';
+import { DateRange } from 'react-date-range';
+import 'react-date-range/dist/styles.css'; // main css file
+import 'react-date-range/dist/theme/default.css'; // theme css file
+import { differenceInDays, eachDayOfInterval, parseISO } from 'date-fns';
+import toast, { Toaster } from 'react-hot-toast';
 
+// Interface for Listing data
 interface Listing {
   name: string;
   price: number;
@@ -23,8 +26,11 @@ interface Listing {
   description: string;
   guests: number;
   rooms: number;
+  category?: string;
+  userId: string;
 }
 
+// Interface for Profile data
 interface Profile {
   name: string;
   email: string;
@@ -33,25 +39,30 @@ interface Profile {
 }
 
 const DetailPage = () => {
-  const { id } = useParams() as { id: string };
-  const { user } = useAuth();
+  const { id } = useParams() as { id: string }; // Get the ID from the URL
+  const { user } = useAuth(); // Get the current user from the Auth context
   const router = useRouter();
-  const [listing, setListing] = useState<Listing | null>(null);
-  const [profileData, setProfileData] = useState<Profile | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState('');
-  const [city, setCity] = useState('');
-  const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('');
-  const [guests, setGuests] = useState('');
-  const [rooms, setRooms] = useState('');
-  const [images, setImages] = useState<string[]>([]);
-  const [newImages, setNewImages] = useState<File[]>([]);
-  const [previewImages, setPreviewImages] = useState<string[]>([]);
-  const [guestCount, setGuestCount] = useState(1); // Add state for guest count
-  const [startDate, setStartDate] = useState<Date | null>(null); // Add state for start date
-  const [endDate, setEndDate] = useState<Date | null>(null); // Add state for end date
+  const [listing, setListing] = useState<Listing | null>(null); // State for the listing data
+  const [profileData, setProfileData] = useState<Profile | null>(null); // State for the profile data
+  const [isEditing] = useState(false); // State for editing mode
+  const [name, setName] = useState(''); // State for the listing name
+  // const [city, setCity] = useState(''); // State for the listing city
+  const [description, setDescription] = useState(''); // State for the listing description
+  const [price, setPrice] = useState(''); // State for the listing price
+  // const [guests, setGuests] = useState(''); // State for the number of guests
+  // const [rooms, setRooms] = useState(''); // State for the number of rooms
+  const [category, setCategory] = useState<string | null>(null); // State for the listing category
+  // const [images, setImages] = useState<string[]>([]); // State for the listing images
+  const [newImages, setNewImages] = useState<File[]>([]); // State for new images to be uploaded
+  const [previewImages, setPreviewImages] = useState<string[]>([]); // State for preview images
+  const [guestCount, setGuestCount] = useState(1); // State for the guest count
+  const [startDate, setStartDate] = useState<Date | null>(new Date()); // State for the start date
+  const [endDate, setEndDate] = useState<Date | null>(new Date()); // State for the end date
+  const [bookedDates, setBookedDates] = useState<Date[]>([]); // State for booked dates
+  const [bookingSuccess, setBookingSuccess] = useState(false); // State for booking success
+  const [dateRange, setDateRange] = useState([{ startDate: new Date(), endDate: new Date(), key: 'selection' }]); // State for date range
 
+  // Fetch listing data
   useEffect(() => {
     const fetchListing = async () => {
       if (id) {
@@ -61,19 +72,21 @@ const DetailPage = () => {
           const data = docSnap.data() as Listing;
           setListing(data);
           setName(data.name);
-          setCity(data.city);
+          // setCity(data.city);
           setDescription(data.description);
           setPrice(data.price.toString());
-          setGuests(data.guests.toString());
-          setRooms(data.rooms.toString());
-          setImages(data.images);
+          // setGuests(data.guests.toString());
+          // setRooms(data.rooms.toString());
+          setCategory(data.category || null);
+          // setImages(data.images);
         }
       }
     };
 
+    // Fetch profile data
     const fetchProfile = async () => {
       if (user) {
-        const docRef = doc(db, 'users', user.uid);  // Fetches the logged-in user's profile
+        const docRef = doc(db, 'users', user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setProfileData(docSnap.data() as Profile);
@@ -81,21 +94,41 @@ const DetailPage = () => {
       }
     };
 
+    // Fetch bookings data
+    const fetchBookings = async () => {
+      if (id) {
+        const q = query(collection(db, 'bookings'), where('accommodationId', '==', id));
+        const querySnapshot = await getDocs(q);
+        const dates: Date[] = [];
+        querySnapshot.forEach((doc) => {
+          const booking = doc.data();
+          const start = parseISO(booking.startDate);
+          const end = parseISO(booking.endDate);
+          const interval = eachDayOfInterval({ start, end });
+          dates.push(...interval);
+        });
+        setBookedDates(dates);
+      }
+    };
+
     fetchListing();
     fetchProfile();
+    fetchBookings();
   }, [id, user]);
 
+  // Handle delete listing
   const handleDelete = async () => {
     if (id) {
       try {
         await deleteDoc(doc(db, 'accommodations', id));
-        router.push('/');
+        router.push('/admin');
       } catch (error) {
         console.error('Error deleting listing: ', error);
       }
     }
   };
 
+  // Handle file change for new images
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
@@ -105,12 +138,14 @@ const DetailPage = () => {
     }
   };
 
-  const uploadImage = async (file: File) => {
-    const storageRef = ref(storage, `images/${file.name}`);
-    await uploadBytes(storageRef, file);
-    return getDownloadURL(storageRef);
-  };
+  // Upload image to Firebase Storage
+  // const uploadImage = async (file: File) => {
+  //   const storageRef = ref(storage, `images/${file.name}`);
+  //   await uploadBytes(storageRef, file);
+  //   return getDownloadURL(storageRef);
+  // };
 
+  // Calculate total price for the booking
   const calculateTotalPrice = () => {
     if (startDate && endDate) {
       const days = differenceInDays(endDate, startDate) + 1;
@@ -126,203 +161,251 @@ const DetailPage = () => {
 
   const { days, totalPrice, finalPrice } = calculateTotalPrice();
 
+  // Handle booking
+  const handleBooking = async () => {
+    if (user && startDate && endDate) {
+      try {
+        const newBooking = {
+          userId: user.uid,
+          accommodationId: id,
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+          guestCount,
+          totalPrice: finalPrice,
+          createdAt: new Date().toISOString(),
+          image: listing.images[0] || '/images/default-image.jpg',
+          name: listing.name,
+          city: listing.city,
+          status: 'active',
+          rooms: listing.rooms,
+        };
+        await addDoc(collection(db, 'bookings'), newBooking);
+        setBookingSuccess(true);
+        setTimeout(() => {
+          router.push(`/pay?id=${id}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&guestCount=${guestCount}`);
+        }, 2000); // Redirect after 2 seconds
+      } catch (error) {
+        console.error('Error booking accommodation: ', error);
+        toast.error('Failed to book accommodation. Please try again.');
+      }
+    } else {
+      toast.error('Please select valid dates and ensure you are logged in.');
+    }
+  };
+
   if (!listing) {
     return <p>Loading...</p>;
   }
 
+  const isOwner = user?.uid === listing.userId;
+
   return (
-    <div className="p-4 flex flex-col w-full"> {/* Ensure full width for the parent container */}
-      <div className="flex justify-between w-full"> {/* Full width for the inner flex container */}
-        {/* Left Section: Listing Details */}
-        <div className="w-1/2 h-full p-4"> {/* Left section takes half the width */}
-          {isEditing ? (
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="text-2xl font-bold mb-4 w-full"
-            />
-          ) : (
-            <h1 className="text-2xl font-bold mb-4">{listing.name}</h1>
-          )}
-          {listing.images.length > 0 && (
-            <img src={listing.images[0]} alt={listing.name} className="w-full h-96 object-cover mb-4" />
-          )}
-          {listing.images.length > 1 && (
-            <div className="flex gap-2 mb-4">
-              {listing.images.slice(1, 3).map((image, index) => (
-                <img key={index} src={image} alt={`Additional image ${index + 1}`} className="w-1/2 h-56 object-cover rounded" />
-              ))}
-            </div>
-          )}
-          {isEditing ? (
-            <input
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              className="text-xl font-bold mb-4 w-full"
-            />
-          ) : (
-            <p className="text-xl font-bold mb-4">Price: ${listing.price}</p>
-          )}
-          <Image src="/images/Arizona.png" alt="Arizona" width={960} height={200} className="w-full h-96 object-cover mb-4" />
-        </div>
-
-        {/* Right Section: Profile and Amenities */}
-        <div className="w-1/2 p-8 flex flex-col items-center"> {/* Right section also takes half the width */}
-          <div className="text-center max-w-2xl mt-8">
-            {isEditing ? (
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="text-xl mb-4 w-full"
-              />
-            ) : (
-              <p className="text-xl">{listing.description}</p>
-            )}
-            <div className="flex justify-center mt-8 gap-12">
-              <div className="flex flex-col mb-8 items-center">
-                <MdOutlineWifiOff className="text-black text-4xl mb-2" />
-                <span className="text-sm">No WiFi</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <FaTree className="text-black text-4xl mb-2" />
-                <span className="text-sm">Nature</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <TbAirConditioning className="text-black text-4xl mb-2" />
-                <span className="text-sm">AC</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <LuBedSingle className="text-black text-4xl mb-2" />
-                <span className="text-sm">Single Bed</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <LuBedDouble className="text-black text-4xl mb-2" />
-                <span className="text-sm">Double Bed</span>
-              </div>
-            </div>
-            <div className="border border-[#0E4411] rounded-lg p-4 mt-10 max-w-lg mx-auto">
-              <p className="text-xl">Cancel up to 24 hours before your stay for a full refund. Cancellations made less than 24 hours before the stay will incur a 50% charge.</p>
-            </div>
-            <div className="border border-[#0E4411] rounded-lg p-4 mt-28 h-[24rem] max-w-lg mx-auto">
-              <div className="flex justify-center items-center p-2">
-                <div className="flex flex-col items-center w-full max-w-2xl">
-                  <div className="relative mb-8">
-                    <Image
-                      width={200}
-                      height={200}
-                      src={profileData?.photoURL || '/images/No_image.jpg'}
-                      alt="Profile"
-                      className="w-32 h-32 md:w-48 md:h-48 rounded-full object-cover border-4 border-[#344E41]"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-4">
-                    <p className="text-2xl font-bold">{profileData?.name}</p>
-                    <p>Email: {profileData?.email}</p>
-                    <p>Phone: {profileData?.phone}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+  <div className="p-8 flex flex-col w-full pb-20"> {/* Main container */}
+    <Toaster /> {/* Toaster for notifications */}
+    {bookingSuccess && (
+      <div className="fixed top-0 left-0 right-0 bg-green-500 text-white text-center p-4">
+        Booking successful! Redirecting to payment...
       </div>
+    )}
 
-      {/* Full-width horizontal line */}
-      <hr className="my-4 w-full" />
-
-      {/* Centered border covering half the page */}
-      <div className="border border-[#0E4411] rounded-lg p-4 w-1/2 mt-8 h-[24-rem] mx-auto">
-        <div className="flex justify-center">
-          <p className="text-xl">Price per night</p>
-          <p className="text-xl">${listing.price}</p>
-        </div>
-        <div className="flex justify-center mt-4">
-          <div className="border border-[#0E4411] rounded-lg p-2 w-2/4 flex items-center justify-center">
-            <p className="text-xl">Guests</p>
-            <div className="flex items-center ml-4">
-              <button onClick={() => setGuestCount(guestCount > 1 ? guestCount - 1 : 1)} className="px-2 py-1 bg-gray-200 rounded">-</button>
-              <p className="text-xl mx-4">{guestCount}</p>
-              <button onClick={() => setGuestCount(guestCount + 1)} className="px-2 py-1 bg-gray-200 rounded">+</button>
-            </div>      
-          </div>
-        </div>
-        <div className="flex justify-center mt-4  ">
-        
-          <div className="border border-[#0E4411] rounded-lg p-2 w-1/4 cursor-pointer flex flex-col items-center" onClick={() => document.querySelector('.react-datepicker-wrapper input')?.focus()}>
-            <p className="text-xl text-center">Check in Date</p>
-            <p className="text-xl text-center">{startDate ? startDate.toLocaleDateString() : 'Select Date'}</p>
-          </div>
-          <div className="border border-[#0E4411] rounded-lg p-2 w-1/4 ml-4 cursor-pointer flex flex-col items-center" onClick={() => document.querySelector('.react-datepicker-wrapper input')?.focus()}>
-            <p className="text-xl text-center">Check out Date</p>
-            <p className="text-xl text-center">{endDate ? endDate.toLocaleDateString() : 'Select Date'}</p>
-          </div>
-        </div>
-        <div className="mt-4 flex justify-center">
-        <DatePicker
-            selected={startDate}
-            onChange={(dates: [Date | null, Date | null]) => {
-              const [start, end] = dates;
-              setStartDate(start);
-              setEndDate(end);
-            }}
-            startDate={startDate || undefined}
-            endDate={endDate || undefined}
-            selectsRange
-            inline
-            className="w-9/10"
+    <div className="flex flex-col md:flex-row justify-between w-full mb-8"> {/* Flex container for main content */}
+      {/* Image and Price Section */}
+      <div className="w-full md:w-1/2 p-4">
+        {isEditing ? (
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="text-2xl font-bold mb-4 w-full"
           />
-        </div>
-        <hr className="my-4 w-full" />
-        
-        {startDate && endDate && (
-          <div className="flex flex-col items-center">
-            <p className="text-xl">${listing.price} x {days} nights x {guestCount} guests = ${totalPrice}</p>
-            <p className="text-xl">Cleaning fee: $20</p>
-            <p className="text-xl">Wanderwise fee: $10</p>
-            <hr className="my-4 w-full" />
-            <p className="text-xl font-bold">Total price: ${finalPrice}</p>
+        ) : (
+          <h1 className="text-2xl font-livvic font-bold mb-4">{listing.name}</h1>
+        )}
+        {listing.images.length > 0 && (
+          <Image width={800} height={600} src={listing.images[0]} alt={listing.name} className="w-full h-96 object-cover mb-4" />
+        )}
+        {listing.images.length > 1 && (
+          <div className="flex gap-2 mb-4">
+            {listing.images.slice(1, 3).map((image, index) => (
+              <Image width={400} height={300} key={index} src={image} alt={`Additional image ${index + 1}`} className="w-1/2 h-56 object-cover rounded" />
+            ))}
           </div>
         )}
+        {isEditing ? (
+          <input
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="text-xl font-bold font-livvic mb-4 w-full"
+          />
+        ) : (
+          <p className="text-xl font-bold font-livvic mb-4">Price: ${listing.price}</p>
+        )}
+        {category && <p className="text-xl font-bold font-livvic mb-4">Category: {category}</p>}
       </div>
 
-      {/* Centered buttons */}
-      <div className="flex justify-center mt-4">
-        <button className="bg-[#588157] text-white text-xl mt-4 p-4 w-1/2 rounded">BOOK HERE</button>
-      </div>
-      {user && (
-        <>
-          <div className="flex justify-center mt-4">
-            <button
-              className="bg-[#344E41] text-white text-xl mt-4 p-4 w-1/2 rounded"
-              onClick={() => router.push(`/admin/edit/${id}`)}
-            >
-              Edit Listing
-            </button>
-          </div>
-          {isEditing && (
-            <div className="flex justify-center mt-4">
-              <input type="file" multiple onChange={handleFileChange} className="mt-2" />
-              <div className="flex flex-wrap gap-2 mt-2">
-                {previewImages.map((src, index) => (
-                  <Image key={index} src={src} alt={`Preview ${index + 1}`} width={96} height={96} className="w-24 h-24 object-cover rounded" />
-                ))}
-              </div>
-            </div>
-          )}
-          <div className="flex justify-center mt-4">
-            <button
-              className="bg-red-500 text-white text-xl mt-4 p-4 w-1/2 rounded"
-              onClick={handleDelete}
-            >
-              Delete Listing
-            </button>
-          </div>
-        </>
-      )}
+      {/* Description and Icons Section */}
+<div className="w-full md:w-1/2 p-6 flex flex-col items-center mt-4 md:mt-32">
+  {isEditing ? (
+    <textarea
+      value={description}
+      onChange={(e) => setDescription(e.target.value)}
+      className="text-xl mb-4 w-full"
+    />
+  ) : (
+    <p className="text-xl h-60 w-full text-center mb-14">{listing.description}</p>
+  )}
+  <div className="flex justify-center mt-4 gap-10">
+    <div className="flex flex-col mb-8 items-center">
+      <MdOutlineWifiOff className="text-4xl mb-2" style={{ color: '#344E41' }} />
+      <span className="text-lg font-livvic">No WiFi</span>
     </div>
-  );
+    <div className="flex flex-col items-center">
+      <FaTree className="text-4xl mb-2" style={{ color: '#344E41' }} />
+      <span className="text-lg font-livvic">Nature</span>
+    </div>
+    <div className="flex flex-col items-center">
+      <TbAirConditioning className="text-4xl mb-2" style={{ color: '#344E41' }} />
+      <span className="text-lg font-livvic">AC</span>
+    </div>
+    <div className="flex flex-col items-center">
+      <LuBedSingle className="text-4xl mb-2" style={{ color: '#344E41' }} />
+      <span className="text-lg font-livvic">Single Bed</span>
+    </div>
+    <div className="flex flex-col items-center">
+      <LuBedDouble className="text-4xl mb-2" style={{ color: '#344E41' }} />
+      <span className="text-lg font-livvic">Double Bed</span>
+    </div>
+  </div>
+  <div className="border border-[#0E4411] rounded-lg p-4 mt-4 max-w-lg mx-auto">
+    <p className="text-xl font-livvic">Cancel up to 24 hours before your stay for a full refund. Cancellations made less than 24 hours before the stay will incur a 50% charge.</p>
+  </div>
+</div>
+    </div>
+
+    {/* Map and Profile Section */}
+<div className="flex flex-col md:flex-row justify-between w-full mb-8">
+  <div className="w-full md:w-1/2 p-4 mt-4">
+    <Image src="/images/Arizona.png" alt="Arizona" width={960} height={200} className="w-full h-96 object-cover mb-4" />
+  </div>
+  <div className="w-full md:w-1/2 p-8 flex flex-col items-center justify-start">
+    <div className="border border-[#0E4411] rounded-lg p-4 h-[24rem] mb-6 w-full sm:w-full mx-auto">
+      <div className="flex justify-center items-center p-2">
+        <div className="flex flex-col items-center w-full max-w-2xl">
+          <div className="relative mb-8">
+            <Image
+              width={200}
+              height={200}
+              src={profileData?.photoURL || '/images/No_image.jpg'}
+              alt="Profile"
+              className="w-48 h-48 md:w-48 md:h-48 rounded-full object-cover border-4 border-[#344E41]"
+            />
+          </div>
+          <div className="flex flex-col gap-4">
+            <p className="text-2xl font-livvic font-bold">{profileData?.name}</p>
+            <p className='font-livvic text-xl'>Email: {profileData?.email}</p>
+            <p className='font-livvic text-xl'>Phone: {profileData?.phone}</p>
+          </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr className="my-6 w-full" /> 
+
+    {/* Booking details section */}
+    <div className="mx-auto p-8 rounded-lg space-y-4 w-full md:w-2/3 lg:w-1/3 border-2 border-brunswickgreen shadow-md">
+      <div className="flex flex-col space-y-4">
+        <div className="flex justify-between p-2">
+          <p className="text-xl font-livvic">Price per night</p>
+          <p className="text-xl font-livvic">${listing.price}</p>
+        </div>
+
+        <div className="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0 border-2 border-brunswickgreen p-2">
+          <label className="text-xl font-livvic">Guests:</label>
+          <div className="flex items-center ml-0 md:ml-4">
+            <button onClick={() => setGuestCount(guestCount > 1 ? guestCount - 1 : 1)} className="px-2 py-1 bg-gray-200 rounded">-</button>
+            <p className="text-xl mx-4">{guestCount}</p>
+            <button onClick={() => setGuestCount(guestCount + 1)} className="px-2 py-1 bg-gray-200 rounded">+</button>
+          </div>
+        </div>
+
+        <div className="flex border-2 border-brunswickgreen p-2">
+          <DateRange
+            editableDateInputs={true}
+            onChange={(item) => {
+              setDateRange([item.selection]);
+              setStartDate(item.selection.startDate);
+              setEndDate(item.selection.endDate);
+            }}
+            moveRangeOnFirstSelection={false}
+            ranges={dateRange}
+            minDate={new Date()}
+            disabledDates={bookedDates}
+            rangeColors={["#344e41"]}
+          />
+        </div>
+
+        <div className="space-y-2 p-2">
+          <div className="flex justify-between">
+            <p className="text-sm font-livvic">
+              ${listing.price} x {days} nights
+            </p>
+            <p className="text-sm font-livvic">${totalPrice}</p>
+          </div>
+          <div className="flex justify-between">
+            <p className="text-sm font-livvic">Cleaning Fee</p>
+            <p className="text-sm font-livvic">$20</p>
+          </div>
+          <div className="flex justify-between border-b-2 border-brunswickgreen pb-4">
+            <p className="text-sm font-livvic">Wanderwise Fee</p>
+            <p className="text-sm font-livvic">$10</p>
+          </div>
+
+          <div className="flex justify-between font-bold text-xl font-livvic">
+            <p>Total Price</p>
+            <p>${finalPrice}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div className="flex justify-center mt-4">
+      <button className="bg-[#588157] text-white text-xl mt-4 p-4 w-1/3 rounded" onClick={handleBooking}>BOOK HERE</button>
+    </div>
+    {user && isOwner && (
+      <>
+        <div className="flex justify-center mt-4">
+          <button
+            className="bg-[#344E41] text-white text-xl mt-4 p-4 w-1/2 rounded"
+            onClick={() => router.push(`/admin/edit/${id}`)}
+          >
+            Edit Listing
+          </button>
+        </div>
+        {isEditing && (
+          <div className="flex justify-center mt-4">
+            <input type="file" multiple onChange={handleFileChange} className="mt-2" />
+            <div className="flex flex-wrap gap-2 mt-2">
+              {previewImages.map((src, index) => (
+                <Image key={index} src={src} alt={`Preview ${index + 1}`} width={96} height={96} className="w-24 h-24 object-cover rounded" />
+              ))}
+            </div>
+          </div>
+        )}
+        <div className="flex justify-center mt-4">
+          <button
+            className="bg-red-500 text-white text-xl mt-4 p-4 w-1/2 rounded"
+            onClick={handleDelete}
+          >
+            Delete Listing
+          </button>
+        </div>
+      </>
+    )}
+  </div>
+);
 };
 
 export default DetailPage;

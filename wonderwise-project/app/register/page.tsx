@@ -4,8 +4,8 @@ import Image from 'next/image';
 
 const RegisterPage = () => {
   return (
-    <div className="flex h-screen">
-      <div className="w-2/3 relative">
+    <div className="flex flex-col md:flex-row h-screen">
+      <div className="w-full md:w-2/3 relative h-1/2 md:h-full">
         <Image
           src="/images/Register_font.jpg"
           alt="Register"
@@ -13,7 +13,7 @@ const RegisterPage = () => {
           objectFit="cover"
         />
       </div>
-      <div className="w-1/3 flex flex-col items-center justify-center bg-[#344E41] p-8">
+      <div className="w-full md:w-1/3 flex flex-col items-center justify-center bg-[#344E41] p-8">
         <h1 className="text-4xl mb-4 text-white">Register</h1>
         <RegisterForm />
         <p className="mt-4 text-white">

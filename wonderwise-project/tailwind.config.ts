@@ -11,6 +11,10 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        timberwolf: "var(--timberwolf)",
+        brunswickgreen: "var(--brunswickgreen)",
+        ferngreen: "var(--ferngreen)",
+        grey: "var(--grey)",
       },
       fontFamily: {
         livvic: ['"Livvic"', 'sans-serif'],
