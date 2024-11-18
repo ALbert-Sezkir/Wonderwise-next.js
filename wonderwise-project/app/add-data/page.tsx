@@ -1,11 +1,18 @@
 'use client'
 
 import React from 'react';
+import { useAuth } from '@/app/context/AuthContext';
 import addAccommodationsToFirestore from '@/utils/addAccommodationsToFirestore';
 
 const AddAccommodationsButton = () => {
+  const { user } = useAuth();
+
   const handleAddAccommodations = async () => {
-    await addAccommodationsToFirestore();
+    if (user) {
+      await addAccommodationsToFirestore(user.uid);
+    } else {
+      console.error('User is not authenticated');
+    }
   };
 
   return (
