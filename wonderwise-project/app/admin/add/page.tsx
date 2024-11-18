@@ -13,6 +13,10 @@ import toast, { Toaster } from 'react-hot-toast';
 import { categories } from '../../components/Categories';
 import CategoryModal from '../../components/CategoryModal'; // Import CategoryModal
 
+interface Category {
+  label: string;
+}
+
 const AddAccommodation = () => {
   const router = useRouter();
   const { user } = useAuth();
@@ -22,7 +26,7 @@ const AddAccommodation = () => {
   const [price, setPrice] = useState('');
   const [guests, setGuests] = useState('');
   const [rooms, setRooms] = useState('');
-  const [category, setCategory] = useState(null); // Update state for category
+  const [category, setCategory] = useState<Category | null>(null); // Update state for category
   const [isCategoryModalOpen, setCategoryModalOpen] = useState(false); // State for category modal
 
   const [newImages, setNewImages] = useState<File[]>([]);
