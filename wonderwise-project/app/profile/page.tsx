@@ -24,7 +24,14 @@ const ProfilePage = () => {
         const userDocRef = doc(db, 'users', user.uid);
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
-          setProfileData(userDoc.data());
+          setProfileData(userDoc.data() as {
+            displayName: string;
+            photoURL: string;
+            info: string;
+            location: string;
+            email: string;
+            phone: string;
+          });
         }
       }
     };
@@ -33,7 +40,7 @@ const ProfilePage = () => {
   }, [user]);
 
   return (
-    <div className="flex justify-center items-center h-screen p-4 md:mt-6">
+    <div className="flex justify-center items-center h-screen p-4 md:mt-6 sm:mt-20">
       <div className="flex flex-col items-center w-full max-w-2xl">
         <div className="relative mb-8">
           <Image

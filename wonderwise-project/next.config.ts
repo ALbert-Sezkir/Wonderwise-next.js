@@ -17,9 +17,7 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true, // Ignorera TypeScript-fel under bygget
   },
-  eslint: {
-    ignoreDuringBuilds: true, // Ignorera ESLint-varningar/fel
-  },
+ 
   reactStrictMode: true,
   images: {
     remotePatterns: [

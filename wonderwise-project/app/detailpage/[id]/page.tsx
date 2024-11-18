@@ -56,8 +56,8 @@ const DetailPage = () => {
   const [guestCount, setGuestCount] = useState(1); // State for the guest count
   const [startDate, setStartDate] = useState<Date | null>(new Date()); // State for the start date
   const [endDate, setEndDate] = useState<Date | null>(new Date()); // State for the end date
+ 
   const [bookedDates, setBookedDates] = useState<Date[]>([]); // State for booked dates
-  const [setBookingSuccess] = useState(false); // State for booking success
   const [dateRange, setDateRange] = useState([{ startDate: new Date(), endDate: new Date(), key: 'selection' }]); // State for date range
 
   // Fetch listing data
@@ -170,14 +170,13 @@ const DetailPage = () => {
           guestCount,
           totalPrice: finalPrice,
           createdAt: new Date().toISOString(),
-          image: listing.images[0] || '/images/default-image.jpg',
-          name: listing.name,
-          city: listing.city,
+          image: listing?.images[0] || '/images/default-image.jpg',
+          name: listing?.name || '',
+          city: listing?.city || '',
           status: 'active',
-          rooms: listing.rooms,
+          rooms: listing?.rooms || 0,
         };
         await addDoc(collection(db, 'bookings'), newBooking);
-        setBookingSuccess(true);
         toast.success('Booking successful!');
         setTimeout(() => {
           router.push(`/pay?id=${id}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&guestCount=${guestCount}`);
@@ -282,7 +281,7 @@ const DetailPage = () => {
     <Image src="/images/Arizona.png" alt="Arizona" width={960} height={200} className="w-full md:h-96 object-cover mb-4" />
   </div>
   <div className="w-full md:w-1/2 p-8 flex flex-col items-center justify-start">
-    <div className="border border-[#0E4411] rounded-lg p-4 h-[24rem] mb-6 mx-auto">
+    <div className="border border-[#0E4411] rounded-lg p-4 mb-4 mx-auto sm:h-[24rem] md:w-[34rem] ">
       <div className="flex justify-center items-center p-2">
         <div className="flex flex-col items-center w-full max-w-2xl">
           <div className="relative mb-6">
@@ -328,9 +327,10 @@ const DetailPage = () => {
           <DateRange
             editableDateInputs={true}
             onChange={(item) => {
-              setDateRange([item.selection]);
-              setStartDate(item.selection.startDate);
-              setEndDate(item.selection.endDate);
+              const { startDate, endDate } = item.selection;
+              setDateRange([{ startDate: startDate || new Date(), endDate: endDate || new Date(), key: 'selection' }]);
+              setStartDate(startDate || new Date());
+              setEndDate(endDate || new Date());
             }}
             moveRangeOnFirstSelection={false}
             ranges={dateRange}
