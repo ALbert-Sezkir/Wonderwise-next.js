@@ -100,6 +100,7 @@ import ListingCard from '@/app/components/ListingCard';
 import { useAuth } from '../context/AuthContext';
 
 interface Accommodation {
+  userId: string | undefined;
   id: string;
   name: string;
   city: string;
