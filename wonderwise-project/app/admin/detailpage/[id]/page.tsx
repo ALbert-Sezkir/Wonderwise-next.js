@@ -205,7 +205,7 @@ const AdminDetailPage = () => {
   const handleSave = async () => {
     if (listing && id) {
       const docRef = doc(db, 'accommodations', id);
-      await updateDoc(docRef, listing);
+      await updateDoc(docRef, { ...listing });
       setIsEditing(false);
     }
   };
@@ -303,4 +303,3 @@ const AdminDetailPage = () => {
 };
 
 export default AdminDetailPage;
-
