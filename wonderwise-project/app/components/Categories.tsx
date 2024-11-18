@@ -16,7 +16,7 @@ import { Caravan, House } from "lucide-react";
 
 interface Category {
   label: string;
-  icon: React.ComponentType;
+  icon: React.ComponentType<{ size: number; className?: string }>;
   description: string;
 }
 
