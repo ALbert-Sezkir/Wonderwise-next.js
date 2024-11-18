@@ -36,9 +36,9 @@ const AddAccommodation = () => {
         toast.error('You can only upload 3 images.');
         return;
       }
-      setNewImages([...newImages, ...filesArray]);
+      setNewImages((prevImages) => [...prevImages, ...filesArray]);
       const previewUrls = filesArray.map((file) => URL.createObjectURL(file));
-      setPreviewImages([...previewImages, ...previewUrls]);
+      setPreviewImages((prevUrls) => [...prevUrls, ...previewUrls]);
     }
   };
 
@@ -129,8 +129,8 @@ const AddAccommodation = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-4">
-      <div className="w-full max-w-2xl">
+    <div className="flex justify-center items-center min-h-screen p-4 sm:pb-20">
+      <div className="w-full max-w-2xl h-[120vh] overflow-y-auto">
         <h1 className="text-2xl font-bold mb-4 text-center">Add New Accommodation Listing</h1>
         <Toaster />
         <form onSubmit={handleSubmit} className="space-y-4 border p-4 rounded-lg shadow-md bg-white">

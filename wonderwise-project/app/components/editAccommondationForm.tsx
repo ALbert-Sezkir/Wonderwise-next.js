@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { db } from '@/firebaseConfig';
+import { categories } from '@/components/Categories'; // Import categories
+import CategoryModal from '@/components/CategoryModal'; // Import CategoryModal
 
 const EditForm = () => {
   const router = useRouter();
@@ -15,6 +17,8 @@ const EditForm = () => {
   const [guests, setGuests] = useState('');
   const [rooms, setRooms] = useState(''); // Ensure rooms is initialized with an empty string
   const [images, setImages] = useState('');
+  const [category, setCategory] = useState<{ label: string } | null>(null); // Add state for category
+  const [isCategoryModalOpen, setCategoryModalOpen] = useState(false); // State for category modal
 
   useEffect(() => {
     const fetchAccommodation = async () => {
@@ -30,6 +34,7 @@ const EditForm = () => {
           setGuests(data.guests);
           setRooms(data.rooms || ''); // Ensure rooms is not undefined
           setImages(data.images || []);
+          setCategory(data.category ? { label: data.category } : null); // Set category from the fetched data
         }
       }
     };
@@ -46,7 +51,8 @@ const EditForm = () => {
       price: Number(price),
       guests: Number(guests),
       rooms: Number(rooms), // Ensure rooms is included
-      images
+      images,
+      category: category?.label || null, // Include category in the updated listing
     };
     try {
       await setDoc(doc(db, "accommodations", id as string), updatedListing);
@@ -84,6 +90,16 @@ const EditForm = () => {
           className="w-full p-2 border rounded"
           required
         />
+        {/* Category */}
+        <div>
+          <label className="font-livvic">Category</label>
+          <div
+            onClick={() => setCategoryModalOpen(true)}
+            className="p-2 border rounded cursor-pointer"
+          >
+            {category ? category.label : "Choose a category"}
+          </div>
+        </div>
         <input
           type="number"
           value={guests}
@@ -112,7 +128,7 @@ const EditForm = () => {
           type="text"
           value={images}
           onChange={(e) => setImages(e.target.value)}
-          placeholder="images"
+          placeholder="Images (comma separated URLs)"
           className="w-full p-2 border rounded"
           required
         />
@@ -120,6 +136,17 @@ const EditForm = () => {
           Update Listing
         </button>
       </form>
+      {/* Category Modal */}
+      {isCategoryModalOpen && (
+        <CategoryModal
+          categories={categories}
+          onSelectCategory={(category) => {
+            setCategory(category);
+            setCategoryModalOpen(false);
+          }}
+          onClose={() => setCategoryModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

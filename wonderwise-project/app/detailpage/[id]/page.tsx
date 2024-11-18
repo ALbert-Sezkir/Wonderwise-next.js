@@ -57,7 +57,7 @@ const DetailPage = () => {
   const [startDate, setStartDate] = useState<Date | null>(new Date()); // State for the start date
   const [endDate, setEndDate] = useState<Date | null>(new Date()); // State for the end date
   const [bookedDates, setBookedDates] = useState<Date[]>([]); // State for booked dates
-  const [bookingSuccess, setBookingSuccess] = useState(false); // State for booking success
+  const [setBookingSuccess] = useState(false); // State for booking success
   const [dateRange, setDateRange] = useState([{ startDate: new Date(), endDate: new Date(), key: 'selection' }]); // State for date range
 
   // Fetch listing data
@@ -178,6 +178,7 @@ const DetailPage = () => {
         };
         await addDoc(collection(db, 'bookings'), newBooking);
         setBookingSuccess(true);
+        toast.success('Booking successful!');
         setTimeout(() => {
           router.push(`/pay?id=${id}&startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}&guestCount=${guestCount}`);
         }, 2000); // Redirect after 2 seconds
@@ -199,11 +200,7 @@ const DetailPage = () => {
   return (
   <div className="p-8 flex flex-col w-full pb-20"> {/* Main container */}
     <Toaster /> {/* Toaster for notifications */}
-    {bookingSuccess && (
-      <div className="fixed top-0 left-0 right-0 bg-green-500 text-white text-center p-4">
-        Booking successful! Redirecting to payment...
-      </div>
-    )}
+    
 
     <div className="flex flex-col md:flex-row justify-between w-full mb-8"> {/* Flex container for main content */}
       {/* Image and Price Section */}
@@ -219,12 +216,12 @@ const DetailPage = () => {
           <h1 className="text-2xl font-livvic font-bold mb-4">{listing.name}</h1>
         )}
         {listing.images.length > 0 && (
-          <Image width={800} height={600} src={listing.images[0]} alt={listing.name} className="w-full h-96 object-cover mb-4" />
+          <Image width={800} height={600} src={listing.images[0]} alt={listing.name} className="w-full md:h-96 object-cover mb-4" />
         )}
         {listing.images.length > 1 && (
           <div className="flex gap-2 mb-4">
             {listing.images.slice(1, 3).map((image, index) => (
-              <Image width={400} height={300} key={index} src={image} alt={`Additional image ${index + 1}`} className="w-1/2 h-56 object-cover rounded" />
+              <Image width={400} height={300} key={index} src={image} alt={`Additional image ${index + 1}`} className="w-1/2 md:h-56 object-cover rounded" />
             ))}
           </div>
         )}
@@ -241,7 +238,7 @@ const DetailPage = () => {
       </div>
 
       {/* Description and Icons Section */}
-<div className="w-full md:w-1/2 p-6 flex flex-col items-center mt-4 md:mt-32">
+<div className="w-full md:w-1/2 p-6 flex flex-col items-center md:mt-32">
   {isEditing ? (
     <textarea
       value={description}
@@ -249,10 +246,10 @@ const DetailPage = () => {
       className="text-xl mb-4 w-full"
     />
   ) : (
-    <p className="text-xl h-60 w-full text-center mb-14">{listing.description}</p>
+    <p className="text-xl h-42 w-full text-center mb-14">{listing.description}</p>
   )}
-  <div className="flex justify-center mt-4 gap-10">
-    <div className="flex flex-col mb-8 items-center">
+  <div className="flex justify-center mb-8 gap-4">
+    <div className="flex flex-col items-center">
       <MdOutlineWifiOff className="text-4xl mb-2" style={{ color: '#344E41' }} />
       <span className="text-lg font-livvic">No WiFi</span>
     </div>
@@ -282,13 +279,13 @@ const DetailPage = () => {
     {/* Map and Profile Section */}
 <div className="flex flex-col md:flex-row justify-between w-full mb-8">
   <div className="w-full md:w-1/2 p-4 mt-4">
-    <Image src="/images/Arizona.png" alt="Arizona" width={960} height={200} className="w-full h-96 object-cover mb-4" />
+    <Image src="/images/Arizona.png" alt="Arizona" width={960} height={200} className="w-full md:h-96 object-cover mb-4" />
   </div>
   <div className="w-full md:w-1/2 p-8 flex flex-col items-center justify-start">
-    <div className="border border-[#0E4411] rounded-lg p-4 h-[24rem] mb-6 w-full sm:w-full mx-auto">
+    <div className="border border-[#0E4411] rounded-lg p-4 h-[24rem] mb-6 mx-auto">
       <div className="flex justify-center items-center p-2">
         <div className="flex flex-col items-center w-full max-w-2xl">
-          <div className="relative mb-8">
+          <div className="relative mb-6">
             <Image
               width={200}
               height={200}
@@ -368,13 +365,13 @@ const DetailPage = () => {
     </div>
 
     <div className="flex justify-center mt-4">
-      <button className="bg-[#588157] text-white text-xl mt-4 p-4 w-1/3 rounded" onClick={handleBooking}>BOOK HERE</button>
+      <button className="bg-[#588157] text-white text-xl mt-4 p-4 md:w-1/3 rounded sm:w-1/2" onClick={handleBooking}>BOOK HERE</button>
     </div>
     {user && isOwner && (
       <>
         <div className="flex justify-center mt-4">
           <button
-            className="bg-[#344E41] text-white text-xl mt-4 p-4 w-1/2 rounded"
+            className="bg-[#344E41] text-white text-xl mt-4 p-4 md:w-1/3 rounded sm:w-20"
             onClick={() => router.push(`/admin/edit/${id}`)}
           >
             Edit Listing
@@ -392,7 +389,7 @@ const DetailPage = () => {
         )}
         <div className="flex justify-center mt-4">
           <button
-            className="bg-red-500 text-white text-xl mt-4 p-4 w-1/2 rounded"
+            className="bg-red-500 text-white text-xl mt-4 p-4 md:w-1/3 rounded sm:w-1/2"
             onClick={handleDelete}
           >
             Delete Listing

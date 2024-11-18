@@ -4,10 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 import { db, storage } from '@/firebaseConfig';
-import { ref, uploadBytes, getDownloadURL, listAll } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL, listAll, deleteObject } from 'firebase/storage';
 import { useAuth } from '@/app/context/AuthContext';
 import Image from 'next/image';
-import { MdClose } from 'react-icons/md';
+import { MdDelete } from 'react-icons/md';
 import toast, { Toaster } from 'react-hot-toast';
 import crypto from 'crypto';
 import { categories } from '@/components/Categories'; // Import categories
@@ -23,7 +23,7 @@ const EditAccommodation = () => {
   const [price, setPrice] = useState('');
   const [guests, setGuests] = useState('');
   const [rooms, setRooms] = useState('');
-  const [category, setCategory] = useState(null); // Add state for category
+  const [category, setCategory] = useState<{ label: string } | null>(null); // Add state for category
   const [isCategoryModalOpen, setCategoryModalOpen] = useState(false); // State for category modal
   const [images, setImages] = useState<string[]>([]);
   const [newImages, setNewImages] = useState<File[]>([]);
@@ -47,7 +47,7 @@ const EditAccommodation = () => {
             setImages(data?.images || []);
             setPreviewImages(data?.images || []); // Set previewImages from fetched data
             setUserId(data?.userId || null); // Set userId from the fetched data
-            setCategory(data?.category || null); // Set category from the fetched data
+            setCategory(data?.category ? { label: data.category } : null); // Set category from the fetched data
           }
         } catch (error) {
           console.error('Error fetching accommodation:', error);
@@ -57,13 +57,20 @@ const EditAccommodation = () => {
     fetchAccommodation();
   }, [id]);
 
-  const handleRemoveImage = (index: number) => {
+  const handleRemoveImage = async (index: number) => {
+    const imageToRemove = images[index];
     const updatedImages = images.filter((_, i) => i !== index);
     setImages(updatedImages);
-    const updatedNewImages = newImages.filter((_, i) => i !== index);
     const updatedPreviewImages = previewImages.filter((_, i) => i !== index);
-    setNewImages(updatedNewImages);
     setPreviewImages(updatedPreviewImages);
+
+    // Remove image from Firebase Storage
+    const imageRef = ref(storage, `images/${imageToRemove}`);
+    try {
+      await deleteObject(imageRef);
+    } catch (error) {
+      console.error('Error deleting image:', error);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,9 +80,9 @@ const EditAccommodation = () => {
         toast.error('You can only upload 3 images.');
         return;
       }
-      setNewImages([...newImages, ...filesArray]);
+      setNewImages((prevImages) => [...prevImages, ...filesArray]);
       const previewUrls = filesArray.map((file) => URL.createObjectURL(file));
-      setPreviewImages([...previewImages, ...previewUrls]);
+      setPreviewImages((prevUrls) => [...prevUrls, ...previewUrls]);
     }
   };
 
@@ -131,8 +138,8 @@ const EditAccommodation = () => {
         price: Number(price),
         guests: Number(guests),
         rooms: Number(rooms),
-        category: category?.label, // Include category in the updated listing
-        images: [...previewImages, ...uploadedImageUrls], // Use previewImages to maintain order
+        category: category?.label || null, // Ensure category is not undefined
+        images: [...images, ...uploadedImageUrls], // Combine old and new images
         userId: userId || user?.uid, // Ensure userId is included
       };
       if (id) {
@@ -229,30 +236,42 @@ const EditAccommodation = () => {
               {category ? category.label : "Choose a category"}
             </div>
           </div>
-          <input
-            type="number"
-            value={guests}
-            onChange={(e) => setGuests(e.target.value)}
-            placeholder="Guests"
-            className="w-full p-2 border rounded"
-            required
-          />
-          <input
-            type="number"
-            value={rooms}
-            onChange={(e) => setRooms(e.target.value)}
-            placeholder="Rooms"
-            className="w-full p-2 border rounded"
-            required
-          />
-          <input
-            type="number"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            placeholder="Price"
-            className="w-full p-2 border rounded"
-            required
-          />
+          {/* Guests */}
+          <div>
+            <label className="font-livvic">Guests</label>
+            <input
+              type="number"
+              value={guests}
+              onChange={(e) => setGuests(e.target.value)}
+              placeholder="Guests"
+              className="w-full p-2 border rounded"
+              required
+            />
+          </div>
+          {/* Rooms */}
+          <div>
+            <label className="font-livvic">Rooms</label>
+            <input
+              type="number"
+              value={rooms}
+              onChange={(e) => setRooms(e.target.value)}
+              placeholder="Rooms"
+              className="w-full p-2 border rounded"
+              required
+            />
+          </div>
+          {/* Price */}
+          <div>
+            <label className="font-livvic">Price</label>
+            <input
+              type="number"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              placeholder="Price"
+              className="w-full p-2 border rounded"
+              required
+            />
+          </div>
           <div className="space-y-2">
             <h3 className="font-semibold">Images</h3>
             <div className="flex flex-wrap gap-2">
@@ -271,7 +290,7 @@ const EditAccommodation = () => {
                     onClick={() => handleRemoveImage(index)}
                     className="absolute top-0 right-0 p-1 bg-red-500 text-white rounded-full"
                   >
-                    <MdClose size={20} />
+                    <MdDelete size={20} />
                   </button>
                 </div>
               ))}

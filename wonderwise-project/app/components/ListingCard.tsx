@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export interface ListingCardProps {
   id: string;
@@ -28,12 +29,12 @@ const ListingCard: React.FC<ListingCardProps> = ({ id, name, city, description, 
   return (
     <div className="border rounded-lg overflow-hidden shadow-lg cursor-pointer" onClick={handleDetail}>
       {images.length > 0 && (
-        <img src={images[0]} alt={name} className="w-full h-80 object-cover" />
+        <Image src={images[0]} alt={name} width={800} height={600}  className="w-full md:h-80 object-cover" />
       )}
       {images.length > 1 && (
         <div className="flex gap-2 mt-2">
           {images.slice(1, 4).map((image, index) => (
-            <img key={index} src={image} alt={`Additional image ${index + 1}`} className="w-1/2 h-40 object-cover rounded" />
+            <Image key={index} src={image} alt={`Additional image ${index + 1}`} width={400} height={200} className="h-40 w-1/2 object-cover rounded" />
           ))}
         </div>
       )}
