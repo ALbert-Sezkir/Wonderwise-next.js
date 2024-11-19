@@ -30,12 +30,12 @@ const ListingCard: React.FC<ListingCardProps> = ({ id, name, city, description, 
   return (
     <div className="border rounded-lg overflow-hidden shadow-lg cursor-pointer" onClick={handleDetail}>
       {images.length > 0 && (
-        <Image src={images[0]} alt={name} width={800} height={600} className="w-full md:h-80 object-cover" />
+        <Image src={images[0]} alt={name} width={600} height={600} className="w-full object-cover aspect-video" />
       )}
       {images.length > 1 && (
         <div className="flex gap-2 mt-2">
           {images.slice(1, 4).map((image, index) => (
-            <Image key={index} src={image} alt={`Additional image ${index + 1}`} width={400} height={200} className="sm:w-[16.4vh] md:w-1/2 h-40 object-cover rounded" />
+            <Image key={index} src={image} alt={`Additional image ${index + 1}`} width={300} height={300} className="w-1/2 object-cover aspect-video rounded" />
           ))}
         </div>
       )}
