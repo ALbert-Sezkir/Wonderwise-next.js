@@ -1,4 +1,3 @@
-// file: utils/updateProfile.tsx
 import { updateProfile as firebaseUpdateProfile } from 'firebase/auth';
 import { auth } from '@/firebaseConfig';
 

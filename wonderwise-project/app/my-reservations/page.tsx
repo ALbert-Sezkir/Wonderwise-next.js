@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, deleteDoc } from 'firebase/firestore';
 import { db, auth } from '@/firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
 import { toast } from 'react-hot-toast';
@@ -60,7 +60,7 @@ const MyReservations = () => {
   const handleDeleteReservation = async (reservationId: string) => {
     try {
       const docRef = doc(db, 'bookings', reservationId);
-      await updateDoc(docRef, { status: 'canceled' });
+      await deleteDoc(docRef); // Använd deleteDoc istället för updateDoc
       toast.success('Reservation canceled.');
 
       setReservations((prev) => prev.filter((res) => res.id !== reservationId));
@@ -78,6 +78,7 @@ const MyReservations = () => {
           <div key={reservation.id} className="border p-4 mb-4 rounded shadow">
             <ListingCard
               id={reservation.accommodationId}
+              userId={reservation.userId}
               name={reservation.name}
               city={reservation.city}
               description={`Check-in: ${new Date(reservation.startDate).toLocaleDateString('en-GB', {

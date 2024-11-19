@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { doc, getDoc, deleteDoc, addDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/firebaseConfig';
-// import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { MdOutlineWifiOff } from 'react-icons/md';
 import { FaTree } from 'react-icons/fa';
 import { TbAirConditioning } from 'react-icons/tb';
@@ -45,18 +44,13 @@ const DetailPage = () => {
   const [profileData, setProfileData] = useState<Profile | null>(null); // State for the profile data
   const [isEditing] = useState(false); // State for editing mode
   const [name, setName] = useState(''); // State for the listing name
-  // const [city, setCity] = useState(''); // State for the listing city
   const [description, setDescription] = useState(''); // State for the listing description
   const [price, setPrice] = useState(''); // State for the listing price
-  // const [guests, setGuests] = useState(''); // State for the number of guests
-  // const [rooms, setRooms] = useState(''); // State for the number of rooms
-  // const [images, setImages] = useState<string[]>([]); // State for the listing images
   const [newImages, setNewImages] = useState<File[]>([]); // State for new images to be uploaded
   const [previewImages, setPreviewImages] = useState<string[]>([]); // State for preview images
   const [guestCount, setGuestCount] = useState(1); // State for the guest count
   const [startDate, setStartDate] = useState<Date | null>(new Date()); // State for the start date
   const [endDate, setEndDate] = useState<Date | null>(new Date()); // State for the end date
- 
   const [bookedDates, setBookedDates] = useState<Date[]>([]); // State for booked dates
   const [dateRange, setDateRange] = useState([{ startDate: new Date(), endDate: new Date(), key: 'selection' }]); // State for date range
 
@@ -70,12 +64,9 @@ const DetailPage = () => {
           const data = docSnap.data() as Listing;
           setListing(data);
           setName(data.name);
-          // setCity(data.city);
           setDescription(data.description);
           setPrice(data.price.toString());
-          // setGuests(data.guests.toString());
-          // setRooms(data.rooms.toString());
-          // setImages(data.images);
+          
         }
       }
     };
@@ -135,14 +126,6 @@ const DetailPage = () => {
     }
   };
 
-  // Upload image to Firebase Storage
-  // const uploadImage = async (file: File) => {
-  //   const storageRef = ref(storage, `images/${file.name}`);
-  //   await uploadBytes(storageRef, file);
-  //   return getDownloadURL(storageRef);
-  // };
-
-  // Calculate total price for the booking
   const calculateTotalPrice = () => {
     if (startDate && endDate) {
       const days = differenceInDays(endDate, startDate) + 1;

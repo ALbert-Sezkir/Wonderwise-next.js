@@ -38,6 +38,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
     console.log("Date Range:", dateRange);
 
     setSearchParams({
+      searchTerm: "", // Lägg till denna rad
       destination,
       category: category ? category.label : null,
       guests: typeof guests === 'number' ? guests : parseInt(guests) || 1,
@@ -129,7 +130,11 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
             <label className="font-livvic">Select Dates</label>
             <DateRange
               editableDateInputs={true}
-              onChange={(item) => setDateRange([item.selection])}
+              onChange={(item) => setDateRange([{
+                startDate: item.selection.startDate || new Date(),
+                endDate: item.selection.endDate || new Date(),
+                key: item.selection.key || "selection"
+              }])}
               moveRangeOnFirstSelection={false}
               ranges={dateRange}
               minDate={new Date()}
