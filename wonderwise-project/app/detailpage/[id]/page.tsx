@@ -198,12 +198,14 @@ const DetailPage = () => {
           <h1 className="text-2xl font-livvic font-bold mb-4">{listing.name}</h1>
         )}
         {listing.images.length > 0 && (
-          <Image width={800} height={600} src={listing.images[0]} alt={listing.name} className="w-full md:h-96 object-cover mb-4" />
+          <Image width={600} height={600} src={listing.images[0]} alt={listing.name} className="w-full aspect-video object-cover mb-4" />
         )}
         {listing.images.length > 1 && (
-          <div className="flex gap-2 mb-4">
+          <div className="flex gap-4 mb-4">
             {listing.images.slice(1, 3).map((image, index) => (
-              <Image width={400} height={300} key={index} src={image} alt={`Additional image ${index + 1}`} className="w-1/2 md:h-56 object-cover rounded" />
+              <div className='w-1/2' key={index}>
+                <Image width={300} height={300} key={index} src={image} alt={`Additional image ${index + 1}`} className="w-full aspect-video object-cover rounded" />
+              </div>
             ))}
           </div>
         )}
