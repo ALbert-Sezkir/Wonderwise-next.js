@@ -265,7 +265,7 @@ const DetailPage = () => {
   <div className="w-full md:w-1/2 p-4 mt-4">
     <Image src="/images/Arizona.png" alt="Arizona" width={960} height={200} className="w-full md:h-96 object-cover mb-4" />
   </div>
-  <div className="w-full md:w-1/2 p-8 flex flex-col items-center justify-start">
+  <div className="w-full md:w-1/2 p-4 flex flex-col items-center justify-start">
     <div className="border border-[#0E4411] rounded-lg p-4 mb-4 mx-auto sm:h-[24rem] md:w-[34rem] ">
       <div className="flex justify-center items-center p-2">
         <div className="flex flex-col items-center w-full max-w-2xl">
@@ -292,7 +292,7 @@ const DetailPage = () => {
     <hr className="my-6 w-full" /> 
 
     {/* Booking details section */}
-    <div className="mx-auto p-8 rounded-lg space-y-4 w-full md:w-2/3 lg:w-1/3 border-2 border-brunswickgreen shadow-md">
+    <div className="mx-auto p-4 rounded-lg space-y-4 w-full md:w-2/3 lg:w-1/3 border-2 border-brunswickgreen shadow-md">
       <div className="flex flex-col space-y-4">
         <div className="flex justify-between p-2">
           <p className="text-xl font-livvic">Price per night</p>
