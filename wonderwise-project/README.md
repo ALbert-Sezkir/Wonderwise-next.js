@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WonderWise 
+
+## Table of Contents
+
+1. [About the Project](#about-the-project)
+   - [Background](#background)
+   - [Technologies Used](#libraries-used)
+   - [Bugs](#bugs)
+2. [Getting Started](#getting-started)
+3. [Contact](#contact)
+
+## About the Project
+
+### Background
+
+**WonderWise** WonderWise is a feature-rich Airbnb-inspired booking platform specifically designed for hikers. 
+It offers a seamless way to explore, book, and manage cabin stays, providing tools for both users and administrators to interact with listings.
+
+
+### Technologies Used
+
+-Frontend: Next.js (React Framework) with TypeScript for type safety.
+-Styling: Tailwind CSS for efficient and responsive design.
+-Backend: Firebase:
+-Firestore Database for managing data.
+-Authentication for secure user login.
+-Hosting and cloud functions (if applicable).
+-Hosting: Vercel for fast and reliable deployment.
+
+### Bugs
+
+- No reported issues
 
 ## Getting Started
 
-First, run the development server:
+Follow these steps to get the project up and running on your local machine:
 
-```bash
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/ALbert-Sezkir/Wonderwise-next.js.git
+   ```
+2. **Navigate to the Project Directory:**
+   ```bash
+   cd \Wonderwise-next.js
+   cd \wonderwise-project
+   ```
+3. **Run the development server:**
+   Prerequisites
+
+Node.js installed (v16 or later recommended)
+Firebase account for backend setup
+
+1. Clone the repository:
+
+git clone https://github.com/your-repo/wonderwise.git
+
+2. Navigate to the project directory:
+
+ cd \Wonderwise-next.js
+ cd \wonderwise-project
+
+Wonderwise-next.js\wonderwise-project
+
+3. Install dependencies:
+
+1. npm install
+
+2. Create a .env.local file in the root directory and add your Firebase configuration:
+env:
+
+NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+
+3. Run the development server:
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Open http://localhost:3000 to view the application.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Hosted on Vercel: 
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+https://wonderwise-next-js.vercel.app/
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
