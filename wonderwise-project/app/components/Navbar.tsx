@@ -100,7 +100,7 @@ const Navbar = () => {
             </div>
           )}
         </div>
-        <div className="lg:hidden">
+        <div className="md:hidden">
           <button onClick={toggleMobileMenu} className="focus:outline-none">
             <FaBars size={24} />
           </button>
