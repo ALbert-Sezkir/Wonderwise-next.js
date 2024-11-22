@@ -40,7 +40,7 @@ const ProfilePage = () => {
   }, [user]);
 
   return (
-    <div className="flex justify-center items-center h-screen p-4 md:mt-6 sm:mt-20">
+    <div className="flex justify-center items-center min-h-screen p-4 md:mt-6 sm:mt-20 sm:overflow-y-auto">
       <div className="flex flex-col items-center w-full max-w-2xl">
         <div className="relative mb-8">
           <Image
@@ -61,6 +61,7 @@ const ProfilePage = () => {
           </div>
         </div>
       </div>
+      <div className="sm:h-32"></div>
     </div>
   );
 };
