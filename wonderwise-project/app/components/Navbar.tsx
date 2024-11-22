@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../firebaseConfig'; // Import your Firebase config
-import HamburgerMenu from './HamburgerMenu'; // Import HamburgerMenu component
 
 const Navbar = () => {
   const { user } = useAuth();
@@ -95,7 +94,7 @@ const Navbar = () => {
             </div>
           )}
         </div>
-        <HamburgerMenu /> 
+      
       </div>
     </nav>
   );
